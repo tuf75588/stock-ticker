@@ -5,9 +5,9 @@ const {Buffer} = require('buffer/');
 const emojis: any = {
   '': '',
   up: '🚀',
-  down: '💩',
+    down: '💩',
 };
-
+                                       
 function formatPrice(price: number) {
   return `$${price.toFixed(2)}`;
 }
@@ -61,6 +61,11 @@ function App() {
     });
   }, []);
 
+  useEffect(() => {
+    if (stock) {
+      document.title = formatPrice(stock.price)
+    }
+  })
   return (
     <div className="stock">
       {stock && (
