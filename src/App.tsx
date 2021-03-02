@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import protobuf from 'protobufjs';
-const Buffer = require('buffer/');
-
+const {Buffer} = require('buffer/');
 
 const emojis: any = {
   '': '',
@@ -14,9 +13,11 @@ function formatPrice(price: number) {
 }
 
 function App() {
-  const [stock, setStock] = useState<{ current: string; price: number, id: number} | null>(
-    null
-  );
+  const [stock, setStock] = useState<{
+    current: string;
+    price: number;
+    id: number;
+  } | null>(null);
   const [direction, setDirection] = useState<string>('');
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,9 +30,11 @@ function App() {
 
       ws.onopen = function open() {
         console.log('connected');
-        ws.send(JSON.stringify({
-          subscribe: [(params.get('symbol') || 'GME').toUpperCase()],
-        }));
+        ws.send(
+          JSON.stringify({
+            subscribe: [(params.get('symbol') || 'GME').toUpperCase()],
+          })
+        );
       };
 
       ws.onclose = function close() {
@@ -39,10 +42,15 @@ function App() {
       };
 
       ws.onmessage = function incoming(message) {
-        const next:any = Yaticker?.decode(new Buffer(message.data, 'base64'));
+        const next: any = Yaticker?.decode(new Buffer(message.data, 'base64'));
         setStock((current) => {
           if (current) {
-            const nextDirection = current.price < next.price ? 'up' : current.price > next.price ? 'down' : '';
+            const nextDirection =
+              current.price < next.price
+                ? 'up'
+                : current.price > next.price
+                ? 'down'
+                : '';
             if (nextDirection) {
               setDirection(nextDirection);
             }
