@@ -3,8 +3,8 @@
 ## Todo
 
 - [ ] Refactor
-- [ ] Customize slider speeed
+- [ ] Customize slider speed
 - [ ] Add loading indicator
 - [ ] Custom emojis
-- [ ] Specify direction 
-- [ ] Flash on big price jump 
+- [ ] Specify direction
+- [ ] Flash on big price jump
