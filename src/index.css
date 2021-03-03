@@ -29,13 +29,19 @@ code {
   position: relative;
 }
 
-.stock {
-  font-size: 9rem;
-  width: 100%;
-  margin: 0;
+.stocks {
+  display: flex;
+  align-items: center;
   position: absolute;
   left: 100%;
+  width: 100%;
   animation: scroll 20s infinite linear;
+}
+
+.stock {
+  white-space: nowrap;
+  margin: clamp(1rem, 10vmin, 50rem);
+  transition: color 500ms ease, font-size 300ms ease;
 }
 
 @keyframes scroll {

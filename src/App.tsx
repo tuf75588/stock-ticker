@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import protobuf from 'protobufjs';
-const {Buffer} = require('buffer/');
+
+const { Buffer } = require('buffer/');
 
 const emojis: any = {
   '': '',
   up: '🚀',
-    down: '💩',
+  down: '💩',
 };
-                                       
+
 function formatPrice(price: number) {
   return `$${price.toFixed(2)}`;
 }
 
 function App() {
-  const [stock, setStock] = useState<{
-    current: string;
-    price: number;
-    id: number;
-  } | null>(null);
-  const [direction, setDirection] = useState<string>('');
+  const [stocks, setStock] = useState<any>([]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ws = new WebSocket('wss://streamer.finance.yahoo.com');
@@ -32,7 +29,9 @@ function App() {
         console.log('connected');
         ws.send(
           JSON.stringify({
-            subscribe: [(params.get('symbol') || 'GME').toUpperCase()],
+            subscribe: (params.get('symbols') || 'GME')
+              .split(',')
+              .map((symbol) => symbol.toUpperCase()),
           })
         );
       };
@@ -43,36 +42,59 @@ function App() {
 
       ws.onmessage = function incoming(message) {
         const next: any = Yaticker?.decode(new Buffer(message.data, 'base64'));
-        setStock((current) => {
-          if (current) {
-            const nextDirection =
-              current.price < next.price
-                ? 'up'
-                : current.price > next.price
-                ? 'down'
-                : '';
-            if (nextDirection) {
-              setDirection(nextDirection);
-            }
+        setStock((current: any) => {
+          let stock = current.find(
+            (stock: { id: number }) => stock.id === next.id
+          );
+          if (stock) {
+            return current.map(
+              (stock: { id: number; direction: string; price: number }) => {
+                if (stock.id === next.id) {
+                  return {
+                    ...next,
+                    direction:
+                      stock.price < next.price
+                        ? 'up'
+                        : stock.price > next.price
+                        ? 'down'
+                        : stock.direction,
+                  };
+                }
+                return stock;
+              }
+            );
+          } else {
+            return [
+              ...current,
+              {
+                ...next,
+                direction: '',
+              },
+            ];
           }
-          return next;
         });
       };
     });
   }, []);
 
   useEffect(() => {
-    if (stock) {
-      document.title = formatPrice(stock.price)
+    if (stocks.length !== 0) {
+      document.title = formatPrice(stocks[0].price);
+    } else {
+      document.title = '0';
     }
-  })
+  });
+
   return (
-    <div className="stock">
-      {stock && (
-        <h2 className={direction}>
-          {stock.id} {formatPrice(stock.price)} {emojis[direction]}{' '}
-        </h2>
-      )}
+    <div className="stocks">
+      {stocks.map((stock: { id: number; direction: string; price: number }) => (
+        <div className="stock" key={stock.id}>
+          <h2 className={stock.direction}>
+            {stock.id}
+            {formatPrice(stock.price)} {emojis[stock.direction]}
+          </h2>
+        </div>
+      ))}
     </div>
   );
 }
