@@ -3,7 +3,9 @@ import protobuf from 'protobufjs';
 
 const { Buffer } = require('buffer/');
 
-const emojis: any = {
+type EmojiKeys = { '': string; up: string; down: string };
+
+const emojis: EmojiKeys = {
   '': '',
   up: '🚀',
   down: '💩',
@@ -21,7 +23,7 @@ function App() {
     const ws = new WebSocket('wss://streamer.finance.yahoo.com');
     protobuf.load('./YPricingData.proto', (error, root) => {
       if (error) {
-        return console.log('error', error);
+        console.log('error', error);
       }
       const Yaticker = root?.lookupType('yaticker');
 
@@ -90,8 +92,7 @@ function App() {
       {stocks.map((stock: { id: number; direction: string; price: number }) => (
         <div className="stock" key={stock.id}>
           <h2 className={stock.direction}>
-            {stock.id}
-            {formatPrice(stock.price)} {emojis[stock.direction]}
+            {stock.id} {formatPrice(stock.price)} {emojis[stock.direction as keyof EmojiKeys]}
           </h2>
         </div>
       ))}
